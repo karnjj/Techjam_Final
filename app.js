@@ -58,19 +58,38 @@ app.post('/distance', (req,res) => {
 		var txt = se_pos.split('#')
 		se_pos = robot[txt[1]]
 	}
+	if(fi_pos.x === undefined) {
+		if(fi_pos.east !== undefined) fi_pos.x = fi_pos.east
+		else fi_pos.x = -fi_pos.west
+		if(fi_pos.north !== undefined) fi_pos.y = fi_pos.north
+		else fi_pos.y = -fi_pos.south
+	}
+	if(se_pos.x === undefined) {
+		if(se_pos.east !== undefined) se_pos.x = se_pos.east
+		else se_pos.x = -se_pos.west
+		if(se_pos.north !== undefined) se_pos.y = se_pos.north
+		else se_pos.y = -se_pos.south
+	}
 	var absX = Math.abs(fi_pos.x-se_pos.x) 
 	var absY = Math.abs(fi_pos.y-se_pos.y)
 	var dist
 	if(data.metric === 'manhattan') dist = absX + absY
 	else dist = distance(fi_pos,se_pos)
 	res.status(200).json({
-		distance : dist.toFixed(3)
+		distance : Number(dist.toFixed(3))
 	}) 
 })
 app.put('/robot/:id/position',(req,res) => {
 	var data = req.body;
 	var id = req.params.id;
-	robot[id] = data.position
+	var position = data.position
+	if(position.x === undefined) {
+		if(position.east !== undefined) position.x = position.east
+		else position.x = -position.west
+		if(position.north !== undefined) position.y = position.north
+		else position.y = -position.south
+	}
+	robot[id] = position
 	res.status(204).send('')
 })
 app.get('/robot/:id/position',(req,res) => {
